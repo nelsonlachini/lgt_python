@@ -5,6 +5,21 @@ import time
 
 from lalgebra import *
 
+def generate_su3_pool_lang():
+    su2 = generate_X2(int(su3_pool_size),eps) 
+    su2.dtype = np.complex128
+    for i in range(int(su3_pool_size/2)):
+        r = su2[i]
+        s = su2[i+int(su3_pool_size/2)]
+        t = su2[i+2*int(su3_pool_size/2)]
+        
+        R = np.array(( (r[0,0] , r[0,1] , 0),(r[1,0] , r[1,1] , 0),(0,0,1) ))         
+        S = np.array(( (s[0,0] , 0 , s[0,1]),(0,1,0),(s[1,0] , 0 , s[1,1]) ))   
+        T = np.array(( (1 , 0 , 0),(0,t[0,0],t[0,1]),(0 , t[1,0] , t[1,1]) )) 
+        
+        su3_pool[i] = three_product(R,S,T)
+        su3_pool[i+int(su3_pool_size/2)] = (su3_pool[i].conj().T).copy()
+
 def generate_su3_pool_lepage():   
     H = np.zeros( (int(su3_pool_size/2),3,3) , np.complex )             
 
@@ -118,35 +133,34 @@ def MCloop(i,j):
     return sum/(6*N**4)  
 
 def MCaverage():
-    for i in range(N_cf): 
-        print('\n')
-        print('Updating lattice...')
+    print('a x a Wilson loop: ')
+    for i in range(N_cf):        
         
-        generate_su3_pool_lepage()
-        
+        generate_su3_pool_lang()
+
         for j in range(N_cor):
             update_lattice()
-            
+
         measure1= MCloop(1,1)
         loop1.append(measure1)        
         
-        print('Wilson Loop Measures:')
-        print('a x a Wilson loop: ', measure1)
+        print(measure1)
+        #print('Wilson Loop Measures:')
+        #print('a x a Wilson loop: ', measure1)
         
  
 ########################PARAMETERS##########################
-
 beta = 5.5
  
-N = 2                                                       # lattice size in lattice units
-N_cf =  11                                                  # number of configurations
-N_cor = 5                                                   # number of configurations to uncorrelate
+N = 2                                                       # path length in lattice units
+N_cor = 1
+N_cf =  100                                                  # number of path configurations
 N_hit = 10
-eps = 0.24                                                  # random parameter: controls the acceptance ratio
+eps = 0.24                                                  # random parameter: controls the accept ratio
 
 su3_pool_size = 100                                         # include inverse matrices
-su3_pool = np.zeros((su3_pool_size,3,3) , np.complex)       # SU3 3x3 matrices for updating links
-U  = np.zeros( (N,N,N,N,4,3,3) , np.complex )               # 4D lattice link variables
+su3_pool = np.zeros((su3_pool_size,3,3) , np.complex)       #su3 3x3 matrices for updating the links, including the inverses
+U  = np.zeros( (N,N,N,N,4,3,3) , np.complex )               #4D lattice link variables
 
 init_lattice(0)
 
