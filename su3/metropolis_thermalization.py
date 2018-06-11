@@ -122,8 +122,11 @@ def MCaverage():
         print('\n')
         print('Updating lattice...')
         
-        update_lattice()        
-
+        generate_su3_pool_lepage()
+        
+        for j in range(N_cor):
+            update_lattice()
+            
         measure1= MCloop(1,1)
         loop1.append(measure1)        
         
@@ -135,17 +138,17 @@ def MCaverage():
 
 beta = 5.5
  
-N = 2                                                       # path length in lattice units
-N_cf =  11                                                  # number of path configurations
+N = 2                                                       # lattice size in lattice units
+N_cf =  11                                                  # number of configurations
+N_cor = 5                                                   # number of configurations to uncorrelate
 N_hit = 10
-eps = 0.24                                                  # random parameter: controls the accept ratio
+eps = 0.24                                                  # random parameter: controls the acceptance ratio
 
-su3_pool_size = 200                                         # include inverse matrices
-su3_pool = np.zeros((su3_pool_size,3,3) , np.complex)       #su3 3x3 matrices for updating the links, including the inverses
-U  = np.zeros( (N,N,N,N,4,3,3) , np.complex )               #4D lattice link variables
+su3_pool_size = 100                                         # include inverse matrices
+su3_pool = np.zeros((su3_pool_size,3,3) , np.complex)       # SU3 3x3 matrices for updating links
+U  = np.zeros( (N,N,N,N,4,3,3) , np.complex )               # 4D lattice link variables
 
 init_lattice(0)
-generate_su3_pool_lepage()
 
 loop1 = []
 MCaverage()
