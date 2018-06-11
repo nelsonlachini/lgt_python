@@ -6,17 +6,17 @@ import time
 from lalgebra import *
 
 def generate_su3_pool_lepage():   
-    H = np.zeros( (su3_pool_size/2,3,3) , np.complex )             
+    H = np.zeros( (int(su3_pool_size/2),3,3) , np.complex )             
 
-    for i in range(su3_pool_size/2):
-        rand = 2*np.random.random((group_dim,group_dim))-1
+    for i in range(int(su3_pool_size/2)):
+        rand = 2*np.random.random((3,3))-1
         H[i] = (rand +rand.T)/2.   
         
-    for i in range(su3_pool_size/2):
-        matrix = np.identity(group_dim) + 1j*eps*H[i]
+    for i in range(int(su3_pool_size/2)):
+        matrix = np.identity(3) + 1j*eps*H[i]
         matrix = unitarize(matrix)
         su3_pool[i] = matrix
-        su3_pool[i+su3_pool_size/2] = matrix.conj().T
+        su3_pool[i+int(su3_pool_size/2)] = matrix.conj().T
        
 def sort_from_pool():
     number = int( (su3_pool_size-1)*np.random.random() )
@@ -66,7 +66,7 @@ def update_links(t,x,y,z,mi):
     
     for i in range(N_hit): 
         old_S = get_S(t,x,y,z,mi,staple)
-        old_link = get_U(t,x,y,z,mi)
+        old_link = U[t,x,y,z,mi].copy()
         
         U[t,x,y,z,mi] = np.dot(sort_from_pool(),old_link)
         
@@ -100,7 +100,7 @@ def MCloop(i,j):
                             I=0
                             J=0                            
                             
-                            temp = np.identity(group_dim)
+                            temp = np.identity(3)
                                                                                  
                             for I in range(0,i):                                   
                                 temp = np.dot(temp, U[(t+I*ami[0])%N , (x+I*ami[1])%N , (y+I*ami[2])%N , (z+I*ami[3])%N ,mi])
