@@ -1,6 +1,10 @@
 import numpy as np
 import numpy.linalg as la
 
+sx = np.array(((0, 1),( 1, 0)))
+sy = np.array(((0, -1j),(1j, 0)))
+sz = np.array(((1, 0),(0, -1)))
+
 def inner(u,v):             #Cn inner product
     u = u.conj().T
     inner = np.inner(u,v)
@@ -30,3 +34,16 @@ def unitarize(matrix):
     matrix[2,:] = uxv
     return matrix
 
+def generate_X2(su3_pool_size,eps):       
+    su2_matrix = np.zeros((3*su3_pool_size,2,2) , np.complex128) 
+    
+    for i in range(3*su3_pool_size):
+        
+        r0  = np.random.uniform(-0.5,0.5)
+        x0  = np.sign(r0)*np.sqrt(1-eps**2)
+        
+        r   = np.random.random((3)) -0.5
+        x   = eps*r/la.norm(r)
+
+        su2_matrix[i] = x0*np.identity(2) + 1j*x[0]*sx + 1j*x[1]*sy + 1j*x[2]*sz     
+    return su2_matrix
